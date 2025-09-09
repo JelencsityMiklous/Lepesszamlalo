@@ -52,6 +52,13 @@ try {
     /*console.log(data)*/
     alert(data.msg)
 
+    if(res.status==200){
+        nameField.value=""
+        emailField.value=""
+        passwdField.value=""
+        confirmPasswdField.value=""
+    }
+
 } 
 catch (err) {
     console.log('Hiba történt: ', err)
