@@ -13,22 +13,22 @@ let passwdField = document.querySelector('#passwdField')
 let confirmPasswdField = document.querySelector('#confirmPasswdField')
 
 if(nameField.value=='' || emailField.value==''  || passwdField.value=='' || confirmPasswdField.value==''){
-    alert('Nem adtál meg minden adatot')
+    ShowMessage('danger','Hiba','Nem adtál meg minden adatot!')
     return
 }
 
 if (passwdField.value!=confirmPasswdField.value){
-    alert('A megadott jelszavak nem egyeznek!')
+    ShowMessage('danger','Hiba','Jelszavak nem egyeznek')
     return;
 }
 
 if(!passwdRegExp.test(passwdField.value)){
-    alert("A megadott jelszó nem biztonságos")
+    ShowMessage('danger','Hiba','Jelszó nem biztonságos')
     return;
 }
 
 if(!emailRegExp.test(emailField.value)){
-    alert("A megadott email nem megfelelő")
+    ShowMessage('danger','Hiba','Email nem megfelelő')
     return;
 }
 
@@ -57,6 +57,10 @@ try {
         emailField.value=""
         passwdField.value=""
         confirmPasswdField.value=""
+        ShowMessage('success','Ok',data.msg)
+    }
+    else{
+        ShowMessage('danger','Hiba',data.msg)
     }
 
 } 
@@ -72,12 +76,63 @@ catch (err) {
 }
 
 
-function login(){
+async function login(){
+    let emailField = document.querySelector("#emailField")
+    let passwdField = document.querySelector("#passwdField")
+
+    if(emailField.value==''  || passwdField.value==''){
+        ShowMessage('danger','Hiba','Nem adtál meg minden adatot!')
+        return
+    }
+
+    let user = [];
+
+    try {
+        
+        const res = await fetch(`${Server}/users/login`, {
+        method:'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(
+        {
+            email:emailField.value,
+            password: passwdField.value
+        })
+        })
+
+        user = await res.json()
+        
+        if(user.id!=undefined){
+            loggedUser= user
+        };
+
+
+        if(!loggedUser){
+            ShowMessage('danger', 'Hiba', 'Hibás belépési adatok')
+            return
+        }
+
+        sessionStorage.setItem('loggedUser', JSON.stringify(loggedUser))
+        
+        getLoggedUser()
+        ShowMessage('success','Ok','Sikeres bejelentkezés')
+
+
+    } catch (err) {
+        ShowMessage('danger', 'Hiba', 'Hibás belépési adatok')
+    }
     
-}
+
+
+}   
 
 function logout(){
 
+    sessionStorage.removeItem('loggedUser')
+    getLoggedUser()
+    render('login')
+    
 }
 
 function getProfile(){
